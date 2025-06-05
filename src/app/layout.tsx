@@ -23,7 +23,7 @@ const NotoSansTC = Noto_Sans_TC({
 import { Metadata } from "next";
 
 // Metadata
-const title = "OCR Tester";
+const title = "OCR 測試系統";
 const description = "Test and compare OCR capabilities of different AI models.";
 const url = "/";
 const author = "Outegral Studio";
@@ -48,16 +48,18 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({ children }: React.ComponentProps<"html">) {
+
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html
 			lang="zh-Hant-TW"
 			className={`${GeistSans.variable} ${GeistMono.variable} ${NotoSansTC.variable}`}
 			suppressHydrationWarning
 		>
-			{/* <head>
+			<head>
 				<script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
-			</head> */}
+			</head>
 			<body>
 				<Providers>
 					<Navbar />

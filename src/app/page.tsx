@@ -1,59 +1,108 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useNicknameStore } from "@/lib/store/ocr";
+
 // Components & UI
-import Image from "next/image";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Icons & Images
+import { Loader2 } from "lucide-react";
+
+// Constants & Variables
+const DASHBOARD_URL = "/dashboard";
 
 
 
-export default function Home() {
+export default function HomePage() {
+	const router = useRouter();
+
+	const { nickname, setNickname } = useNicknameStore();
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isSuccess, setIsSuccess] = useState<boolean>(false);
+
+	const INPUT_ID = "nickname";
+
+	useEffect(() => {
+		if (nickname) {
+			toast.info("您已設定過暱稱", {
+				description: `${nickname}，歡迎使用 OCR 測試系統`,
+				duration: 1500,
+				onAutoClose: () => router.push(DASHBOARD_URL),
+				onDismiss: () => router.push(DASHBOARD_URL),
+			});
+		}
+	}, [nickname, router]);
+
+	async function handleSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		setIsLoading(true);
+		const formData = new FormData(e.currentTarget as HTMLFormElement);
+		const name = (formData.get(INPUT_ID) as string).trim();
+
+		if (!name) {
+			toast.error("請輸入暱稱", { description: "暱稱不能為空" });
+			return;
+		}
+
+		try {
+			setNickname(name);
+			setIsSuccess(true);
+			toast.success("暱稱設定成功", {
+				description: `${name}，歡迎使用 OCR 測試系統`,
+			});
+			router.push(DASHBOARD_URL);
+		} catch (error: any) {
+			console.error("NICKNAME::ERR:", error.message);
+			toast.error("暱稱設定失敗", { description: "無法設定暱稱，請重試" });
+			setIsLoading(false);
+		}
+	}
+
 	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-[calc(100svh_-_3.5rem)] p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-				<Image
-					className="dark:invert"
-					src="/next.svg"
-					alt="Next.js logo"
-					width={180}
-					height={38}
-					priority
-				/>
-				<ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-					<li className="mb-2 tracking-[-.01em]">
-						Get started by editing{" "}
-						<code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-							app/page.tsx
-						</code>
-						.
-					</li>
-					<li className="tracking-[-.01em]">
-						Save and see your changes instantly.
-					</li>
-				</ol>
-
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-						href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Image
-							className="dark:invert"
-							src="/vercel.svg"
-							alt="Vercel logomark"
-							width={20}
-							height={20}
+		<main className="flex flex-col items-center justify-center h-[calc(100svh_-_3.5rem)] p-4 md:p-8">
+		<Card className="w-full max-w-md">
+			<CardHeader className="text-center">
+				<CardTitle className="text-2xl">OCR 測試系統</CardTitle>
+				<CardDescription>歡迎使用 OCR 模型測試與比較平台</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form onSubmit={handleSubmit} className="space-y-6">
+					<div className="grid gap-2">
+						<Label htmlFor={INPUT_ID}>請輸入您的暱稱</Label>
+						<Input
+							id={INPUT_ID}
+							name={INPUT_ID}
+							type="text"
+							placeholder="例如：里莫"
+							disabled={isLoading}
+							maxLength={20}
 						/>
-						Deploy now
-					</a>
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
-				</div>
-			</main>
-		</div>
+					</div>
+					<Button
+						type="submit"
+						className="w-full"
+						disabled={isLoading || !!nickname}
+						>
+						{isSuccess
+							? "即將跳轉..." : isLoading
+								? <Loader2 className="animate-spin" />
+								: "開始使用"
+						}
+					</Button>
+				</form>
+			</CardContent>
+		</Card>
+		</main>
 	);
 }
