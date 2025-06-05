@@ -57,9 +57,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			className={`${GeistSans.variable} ${GeistMono.variable} ${NotoSansTC.variable}`}
 			suppressHydrationWarning
 		>
-			<head>
+			{/* <head>
 				<script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
-			</head>
+			</head> */}
 			<body>
 				<Providers>
 					<Navbar />
